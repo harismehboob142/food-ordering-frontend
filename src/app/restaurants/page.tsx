@@ -1,58 +1,13 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import axios from "axios";
-import ProtectedRoute from "@/components/ProtectedRoute";
-import MainLayout from "@/components/MainLayout";
-import { useAuth } from "@/context/AuthContext";
-import { FiPlus, FiEdit2, FiTrash2, FiEye } from "react-icons/fi";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-// Types
-type Restaurant = {
-  _id: string;
-  name: string;
-  address: string;
-  country: string;
-  menu: string[];
-};
+import MainLayout from "@/components/MainLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { FiPlus, FiEdit2, FiTrash2, FiEye } from "react-icons/fi";
+import useRestaurants from "@/hooks/restaurants/useRestaurants";
 
 export default function RestaurantsPage() {
-  const router = useRouter();
-  const { user, token } = useAuth();
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch restaurants
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/restaurants`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        setRestaurants(res.data);
-        setLoading(false);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch restaurants");
-        setLoading(false);
-      }
-    };
-
-    if (token) {
-      fetchRestaurants();
-    }
-  }, [token]);
-
-  // Check if user can create restaurants (admin only)
-  const canCreateRestaurant = user?.role === "admin";
+  const { user, error, router, loading, restaurants, canCreateRestaurant } =
+    useRestaurants();
 
   return (
     <ProtectedRoute>

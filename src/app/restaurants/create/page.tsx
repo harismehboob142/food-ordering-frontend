@@ -1,60 +1,25 @@
 "use client";
-
-import axios from "axios";
-import { useState } from "react";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import MainLayout from "@/components/MainLayout";
-import { useAuth } from "@/context/AuthContext";
-import { useForm } from "react-hook-form";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { FiShoppingBag, FiMapPin } from "react-icons/fi";
-
-// Types
-type CreateRestaurantFormInputs = {
-  name: string;
-  address: string;
-  country: "India" | "America";
-};
+import useAddRestaurant from "@/hooks/restaurants/useAddRestaurant";
 
 export default function CreateRestaurantPage() {
-  const { token } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
   const {
+    error,
+    errors,
+    success,
+    onSubmit,
     register,
     handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateRestaurantFormInputs>();
-
-  // Handle form submission
-  const onSubmit = async (data: CreateRestaurantFormInputs) => {
-    try {
-      setLoading(true);
-      setError(null);
-      setSuccess(null);
-
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/restaurants`, data, {
-        headers: {
-          "x-auth-token": token,
-        },
-      });
-
-      setSuccess("Restaurant created successfully!");
-      reset(); // Reset form
-      setLoading(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to create restaurant");
-      setLoading(false);
-    }
-  };
+    isSubmitting,
+  } = useAddRestaurant();
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <MainLayout>
         <div className="container mx-auto">
-          <h1 className="mb-6 text-2xl font-bold text-gray-500">
+          <h1 className="mb-6 text-2xl font-bold text-foreground">
             Create Restaurant
           </h1>
 
@@ -73,12 +38,12 @@ export default function CreateRestaurantPage() {
           )}
 
           {/* Create restaurant form */}
-          <div className="p-6 bg-white rounded-lg shadow-md">
+          <div className="p-6 bg-background rounded-lg shadow-md">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-400"
                 >
                   Restaurant Name
                 </label>
@@ -90,7 +55,7 @@ export default function CreateRestaurantPage() {
                     id="name"
                     type="text"
                     {...register("name", { required: "Name is required" })}
-                    className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-500 h-10"
+                    className="text-foreground block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10"
                     placeholder="Enter restaurant name"
                   />
                 </div>
@@ -104,7 +69,7 @@ export default function CreateRestaurantPage() {
               <div>
                 <label
                   htmlFor="address"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-400"
                 >
                   Address
                 </label>
@@ -115,7 +80,7 @@ export default function CreateRestaurantPage() {
                     {...register("address", {
                       required: "Address is required",
                     })}
-                    className="text-gray-500 h-10 block w-full border-gray-300 pl-10 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="text-foreground h-10 block w-full border-gray-300 pl-10 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Enter restaurant address"
                   />
                 </div>
@@ -129,7 +94,7 @@ export default function CreateRestaurantPage() {
               <div>
                 <label
                   htmlFor="country"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-400"
                 >
                   Country
                 </label>
@@ -142,7 +107,7 @@ export default function CreateRestaurantPage() {
                     {...register("country", {
                       required: "Country is required",
                     })}
-                    className="text-gray-500 h-10 block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="text-foreground bg-background border h-10 block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   >
                     <option value="">Select a country</option>
                     <option value="India">India</option>

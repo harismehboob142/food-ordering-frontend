@@ -1,93 +1,19 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import axios from "axios";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import MainLayout from "@/components/MainLayout";
-import { useAuth } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { FiPlus, FiEdit2, FiTrash2, FiShoppingCart } from "react-icons/fi";
-import { useParams } from "next/navigation";
-
-// Types
-type Restaurant = {
-  _id: string;
-  name: string;
-  address: string;
-  country: string;
-  menu: string[];
-};
-
-type FoodItem = {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  restaurant: any;
-  country: string;
-};
+import useGetRestaurantDetail from "@/hooks/restaurants/useGetRestaurantDetail";
 
 export default function RestaurantDetailPage() {
-  const { id } = useParams();
-  const { user, token } = useAuth();
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch restaurant and food items
-  useEffect(() => {
-    const fetchRestaurantData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch restaurant details
-        const restaurantRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/restaurants/${id}`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-
-        setRestaurant(restaurantRes.data);
-
-        // Fetch food items for this restaurant
-        const foodItemsRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/fooditems`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        // Filter food items for this restaurant
-        const restaurantFoodItems = foodItemsRes.data.filter(
-          (item: FoodItem) => item.restaurant._id === id
-        );
-
-        setFoodItems(restaurantFoodItems);
-        setLoading(false);
-      } catch (err: any) {
-        setError(
-          err.response?.data?.message || "Failed to fetch restaurant data"
-        );
-        setLoading(false);
-      }
-    };
-
-    if (token && id) {
-      fetchRestaurantData();
-    }
-  }, [token, id]);
-
-  // Check if user can create food items (all roles)
-  const canCreateFoodItem = true;
-
-  // Check if user can place orders (admin and manager)
-  const canPlaceOrder = user?.role === "admin" || user?.role === "manager";
-
-  console.log("api id is ", process.env.NEXT_PUBLIC_API_URL);
+  const {
+    error,
+    router,
+    loading,
+    restaurant,
+    foodItems,
+    canPlaceOrder,
+    canCreateFoodItem,
+  } = useGetRestaurantDetail();
 
   return (
     <ProtectedRoute>
@@ -117,7 +43,10 @@ export default function RestaurantDetailPage() {
                 </div>
 
                 {canCreateFoodItem && (
-                  <button className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                  <button
+                    onClick={() => router.push("/fooditems/create")}
+                    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
                     <FiPlus className="inline mr-2" />
                     Add Food Item
                   </button>

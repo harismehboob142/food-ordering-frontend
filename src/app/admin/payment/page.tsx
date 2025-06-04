@@ -1,132 +1,78 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import MainLayout from '@/components/MainLayout';
-import { useAuth } from '@/context/AuthContext';
-import { useForm } from 'react-hook-form';
-import { FiDollarSign } from 'react-icons/fi';
-
-// Types
-type UpdatePaymentFormInputs = {
-  paymentMethod: string;
-};
+"use client";
+import { FiDollarSign } from "react-icons/fi";
+import MainLayout from "@/components/MainLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import useUpdatePaymentMethod from "@/hooks/admin/useUpdatePaymentMethod";
 
 export default function UpdatePaymentPage() {
-  const { token } = useAuth();
-  const [orderId, setOrderId] = useState<string>('');
-  const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  
   const {
+    error,
+    errors,
+    orders,
+    success,
+    orderId,
     register,
+    onSubmit,
+    setOrderId,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<UpdatePaymentFormInputs>();
-
-  // Fetch orders on component mount
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
-          headers: {
-            'x-auth-token': token
-          }
-        });
-        setOrders(res.data);
-        setLoading(false);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to fetch orders');
-        setLoading(false);
-      }
-    };
-
-    if (token) {
-      fetchOrders();
-    }
-  }, [token]);
-
-  // Handle form submission
-  const onSubmit = async (data: UpdatePaymentFormInputs) => {
-    if (!orderId) {
-      setError('Please select an order');
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      setError(null);
-      setSuccess(null);
-      
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/orders/${orderId}/payment`,
-        data,
-        {
-          headers: {
-            'x-auth-token': token
-          }
-        }
-      );
-      
-      setSuccess('Payment method updated successfully!');
-      setLoading(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update payment method');
-      setLoading(false);
-    }
-  };
-
+    isSubmitting,
+  } = useUpdatePaymentMethod();
   return (
-    <ProtectedRoute allowedRoles={['admin']}>
+    <ProtectedRoute allowedRoles={["admin"]}>
       <MainLayout>
         <div className="container mx-auto">
           <h1 className="mb-6 text-2xl font-bold">Update Payment Method</h1>
-          
+
           {/* Error message */}
           {error && (
             <div className="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-md">
               {error}
             </div>
           )}
-          
+
           {/* Success message */}
           {success && (
             <div className="p-4 mb-6 text-sm text-green-700 bg-green-100 rounded-md">
               {success}
             </div>
           )}
-          
+
           {/* Update payment form */}
-          <div className="p-6 bg-white rounded-lg shadow-md">
+          <div className="p-6 bg-background text-foreground rounded-lg shadow-md">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
-                <label htmlFor="order" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="order"
+                  className="block text-sm font-medium text-gray-400"
+                >
                   Select Order
                 </label>
                 <select
                   id="order"
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
-                  className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="block w-full mt-1 h-10 border text-foreground bg-background border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
                   <option value="">Select an order</option>
                   {orders.map((order) => (
                     <option key={order._id} value={order._id}>
-                      Order #{order._id.substring(0, 8)} - ${order.totalAmount.toFixed(2)} - {order.user.username}
+                      Order #{order._id.substring(0, 8)} - $
+                      {order.totalAmount.toFixed(2)} - {order.user.username}
                     </option>
                   ))}
                 </select>
                 {!orderId && (
-                  <p className="mt-1 text-sm text-red-600">Please select an order</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    Please select an order
+                  </p>
                 )}
               </div>
-              
+
               <div>
-                <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="paymentMethod"
+                  className="block text-sm font-medium text-gray-400"
+                >
                   Payment Method
                 </label>
                 <div className="relative mt-1 rounded-md shadow-sm">
@@ -135,8 +81,10 @@ export default function UpdatePaymentPage() {
                   </div>
                   <select
                     id="paymentMethod"
-                    {...register('paymentMethod', { required: 'Payment method is required' })}
-                    className="block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    {...register("paymentMethod", {
+                      required: "Payment method is required",
+                    })}
+                    className="block w-full pl-10 h-10 border text-foreground bg-background border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   >
                     <option value="">Select payment method</option>
                     <option value="credit_card">Credit Card</option>
@@ -146,17 +94,19 @@ export default function UpdatePaymentPage() {
                   </select>
                 </div>
                 {errors.paymentMethod && (
-                  <p className="mt-1 text-sm text-red-600">{errors.paymentMethod.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.paymentMethod.message}
+                  </p>
                 )}
               </div>
-              
+
               <div>
                 <button
                   type="submit"
                   disabled={isSubmitting || !orderId}
                   className="flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Updating...' : 'Update Payment Method'}
+                  {isSubmitting ? "Updating..." : "Update Payment Method"}
                 </button>
               </div>
             </form>

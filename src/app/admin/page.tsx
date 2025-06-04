@@ -1,52 +1,11 @@
 "use client";
-
-import { useState, useEffect } from "react";
-import axios from "axios";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MainLayout from "@/components/MainLayout";
-import { useAuth } from "@/context/AuthContext";
 import { FiPlus, FiEdit2, FiTrash2, FiUser } from "react-icons/fi";
-
-// Types
-type User = {
-  _id: string;
-  username: string;
-  role: "admin" | "manager" | "member";
-  country?: "India" | "America";
-  createdAt: string;
-};
+import useAdmin from "@/hooks/admin/useAdmin";
 
 export default function AdminPage() {
-  const { user: currentUser, token } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/users`,
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        );
-        setUsers(res.data);
-        setLoading(false);
-      } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to fetch users");
-        setLoading(false);
-      }
-    };
-
-    if (token) {
-      fetchUsers();
-    }
-  }, [token]);
+  const { error, loading, router, users, currentUser } = useAdmin();
 
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
@@ -54,7 +13,10 @@ export default function AdminPage() {
         <div className="container mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold">Admin Panel</h1>
-            <button className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <button
+              onClick={() => router.push("/admin/users/create")}
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
               <FiPlus className="inline mr-2" />
               Add User
             </button>
@@ -221,7 +183,10 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <button className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              <button
+                onClick={() => router.push("/admin/payment")}
+                className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
                 Save Settings
               </button>
             </div>
