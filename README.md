@@ -1,3 +1,5 @@
+note: env file has been exposed intentionally
+
 # Food Ordering System - User Guide
 
 This document provides a comprehensive guide to using the Food Ordering System application.
