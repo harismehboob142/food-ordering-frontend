@@ -58,7 +58,7 @@ export default function LoginPage() {
                   {...register("username", {
                     required: "Username is required",
                   })}
-                  className="h-10 text-gray-900 block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="h-10 text-foreground block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Username"
                 />
               </div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
                   {...register("password", {
                     required: "Password is required",
                   })}
-                  className="h-10 text-gray-900 block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="h-10 text-foreground block w-full pl-10 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Password"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">

@@ -2,6 +2,12 @@
 
 This document provides a comprehensive guide to using the Food Ordering System application.
 
+## Installation and Usage Locally
+
+> npm i --legacy-peer-deps
+
+> npm run dev
+
 ## Overview
 
 The Food Ordering System is a web-based application that allows users to browse restaurants, view menus, create food items, and place orders. The system implements role-based and country-based access control to ensure users can only access data relevant to their role and country.
